@@ -8,9 +8,11 @@
     "start": "next start",
     "lint": "eslint",
     "ws:dev": "node server/ws-server.js",
-    "server:dev": "node server/server.js"
+    "server:dev": "node server/server.js",
+    "dev:all": "concurrently -k \"npm run server:dev\" \"npm run dev\""
   },
   "dependencies": {
+    "concurrently": "^9.1.0",
     "cors": "^2.8.5",
     "express": "^4.19.2",
     "nedb-promises": "^6.2.3",
