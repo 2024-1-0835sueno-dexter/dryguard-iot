@@ -164,10 +164,10 @@ export default function AdminDashboard() {
   return (
     <main className="min-h-screen bg-gray-50 p-8">
       <h1 className="text-3xl font-bold text-gray-800 mb-6">🛡️ DryGuard Admin</h1>
-      <p className="text-gray-600 mb-8">
+      <p className="text-gray-700 mb-8">
         Device Configuration and Monitoring Dashboard
       </p>
-      <p className="text-sm text-gray-500 mb-6">
+      <p className="text-sm text-gray-600 mb-6">
         Live updates: {wsConnected ? "WebSocket connected" : "Polling API"}
       </p>
 

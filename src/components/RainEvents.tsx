@@ -7,9 +7,9 @@ export default function RainEvents({ rainDetected, lastUpdated }: RainEventsProp
   return (
     <div className="p-6 rounded-xl shadow-md bg-white">
       <h2 className="text-xl font-bold text-gray-800 mb-4">Rain Events</h2>
-      <p className="text-sm text-gray-500">{lastUpdated ?? "08:38 AM | Wed, Jan 28, 2026"}</p>
+      <p className="text-sm text-gray-600">{lastUpdated ?? "08:38 AM | Wed, Jan 28, 2026"}</p>
       {rainDetected !== undefined && (
-        <p className="mt-2 text-sm text-gray-600">
+        <p className="mt-2 text-sm text-gray-700">
           Status: {rainDetected ? "Rain detected" : "No rain detected"}
         </p>
       )}

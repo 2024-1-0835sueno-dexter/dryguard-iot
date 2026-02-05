@@ -9,7 +9,7 @@ export default function SystemHealth({ online = true, lastChecked }: SystemHealt
       <h2 className="text-xl font-bold text-gray-800 mb-4">System Health</h2>
       <p>✅ Wi-Fi: Connected</p>
       <p>💻 System: {online ? "Online" : "Offline"}</p>
-      <p className="text-sm text-gray-500">
+      <p className="text-sm text-gray-600">
         Last checked: {lastChecked ?? "08:38 AM"}
       </p>
     </div>

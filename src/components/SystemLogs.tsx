@@ -17,7 +17,7 @@ export default function SystemLogs() {
         ))}
       </ul>
 
-      <div className="mt-6 text-sm text-gray-500">
+      <div className="mt-6 text-sm text-gray-600">
         ✅ Wi-Fi: Connected <br />
         💻 System: Online
       </div>
