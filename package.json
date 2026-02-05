@@ -7,9 +7,14 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "ws:dev": "node server/ws-server.js"
+    "ws:dev": "node server/ws-server.js",
+    "server:dev": "node server/server.js"
   },
   "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.19.2",
+    "nedb-promises": "^6.2.3",
+    "mqtt": "^5.10.4",
     "next": "16.1.6",
     "react": "19.2.3",
     "react-dom": "19.2.3",

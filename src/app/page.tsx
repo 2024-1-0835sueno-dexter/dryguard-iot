@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import HumidityTrends from "@/components/HumidityTrends";
 import RainEvents from "@/components/RainEvents";
 import SystemHealth from "@/components/SystemHealth";
@@ -15,6 +15,11 @@ type SystemState = {
   coverDeployed: boolean;
   online: boolean;
   lastChecked: string;
+};
+
+type NotificationItem = {
+  icon: string;
+  text: string;
 };
 
 const formatTimestamp = (value?: string) => {
@@ -33,17 +38,63 @@ const formatTimestamp = (value?: string) => {
 
 export default function AdminDashboard() {
   const [system, setSystem] = useState<SystemState | null>(null);
+  const [alerts, setAlerts] = useState<string[]>([]);
+  const [notifications, setNotifications] = useState<NotificationItem[]>([]);
+  const [activity, setActivity] = useState<string[]>([]);
   const [wsConnected, setWsConnected] = useState(false);
   const wsRef = useRef<WebSocket | null>(null);
 
+  const apiBase = useMemo(() => {
+    return process.env.NEXT_PUBLIC_API_BASE ?? "";
+  }, []);
+
+  const wsUrl = useMemo(() => {
+    if (process.env.NEXT_PUBLIC_WS_URL) {
+      return process.env.NEXT_PUBLIC_WS_URL;
+    }
+
+    if (apiBase.startsWith("http")) {
+      return apiBase.replace("https://", "wss://").replace("http://", "ws://");
+    }
+
+    return "ws://localhost:4001";
+  }, [apiBase]);
+
   const fetchSystem = async () => {
     try {
-      const response = await fetch("/api/system", { cache: "no-store" });
+      const response = await fetch(`${apiBase}/api/system`, { cache: "no-store" });
       if (!response.ok) {
         return;
       }
       const data = (await response.json()) as SystemState;
       setSystem(data);
+    } catch {
+      // ignore fetch errors for now
+    }
+  };
+
+  const fetchNotifications = async () => {
+    try {
+      const response = await fetch(`${apiBase}/api/notifications`, { cache: "no-store" });
+      if (!response.ok) {
+        return;
+      }
+      const data = (await response.json()) as NotificationItem[];
+      setNotifications(data);
+      setAlerts(data.map((item) => item.text));
+    } catch {
+      // ignore fetch errors for now
+    }
+  };
+
+  const fetchActivity = async () => {
+    try {
+      const response = await fetch(`${apiBase}/api/activity`, { cache: "no-store" });
+      if (!response.ok) {
+        return;
+      }
+      const data = (await response.json()) as string[];
+      setActivity(data);
     } catch {
       // ignore fetch errors for now
     }
@@ -60,8 +111,10 @@ export default function AdminDashboard() {
     wsAction: "deploy" | "retract" | "reset",
   ) => {
     try {
-      await fetch(endpoint, { method: "POST" });
+      await fetch(`${apiBase}${endpoint}`, { method: "POST" });
       await fetchSystem();
+      await fetchNotifications();
+      await fetchActivity();
     } catch {
       // ignore action errors for now
     }
@@ -70,12 +123,18 @@ export default function AdminDashboard() {
 
   useEffect(() => {
     fetchSystem();
-    const interval = setInterval(fetchSystem, 10000);
+    fetchNotifications();
+    fetchActivity();
+    const interval = setInterval(() => {
+      fetchSystem();
+      fetchNotifications();
+      fetchActivity();
+    }, 10000);
     return () => clearInterval(interval);
   }, []);
 
   useEffect(() => {
-    const ws = new WebSocket("ws://localhost:4001");
+    const ws = new WebSocket(wsUrl);
     wsRef.current = ws;
 
     ws.onopen = () => setWsConnected(true);
@@ -123,14 +182,14 @@ export default function AdminDashboard() {
           laundryOnline={system?.online ?? true}
           outdoorOnline={system ? !system.rainDetected : false}
         />
-        <Alerts />
+        <Alerts alerts={alerts.length ? alerts : undefined} />
         <QuickActions
           onDeploy={() => handleAction("/api/deploy-cover", "deploy")}
           onRetract={() => handleAction("/api/retract-cover", "retract")}
           onReset={() => handleAction("/api/reset-device", "reset")}
           confirmActions
         />
-        <RecentActivity />
+        <RecentActivity activity={activity.length ? activity : undefined} />
       </div>
     </main>
   );

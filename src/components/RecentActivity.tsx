@@ -1,9 +1,14 @@
-export default function RecentActivity() {
-  const activity = [
+interface RecentActivityProps {
+  activity?: string[];
+}
+
+export default function RecentActivity({
+  activity = [
     "Jan 27 – Rain detected",
     "Jan 27 – Cover deployed",
     "Jan 28 – Sunny, cover retracted",
-  ];
+  ],
+}: RecentActivityProps) {
 
   return (
     <div className="p-6 rounded-xl shadow-md bg-white">

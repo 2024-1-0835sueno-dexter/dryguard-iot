@@ -1,9 +1,19 @@
-export default function NotificationsPanel() {
-  const logs = [
+interface NotificationItem {
+  icon: string;
+  text: string;
+}
+
+interface NotificationsPanelProps {
+  logs?: NotificationItem[];
+}
+
+export default function NotificationsPanel({
+  logs = [
     { icon: "⚠️", text: "Rain detected at 2:15 PM" },
     { icon: "✅", text: "Cover deployed successfully" },
     { icon: "🟩", text: "Clothesline uncovered at 4:30 PM" },
-  ];
+  ],
+}: NotificationsPanelProps) {
 
   return (
     <div className="p-6 rounded-xl shadow-md bg-white">

@@ -1,9 +1,14 @@
-export default function Alerts() {
-  const alerts = [
+interface AlertsProps {
+  alerts?: string[];
+}
+
+export default function Alerts({
+  alerts = [
     "Rain detected — 2:15 PM",
     "At risk — 2:30 PM",
     "Drying — 4:30 PM",
-  ];
+  ],
+}: AlertsProps) {
 
   return (
     <div className="p-6 rounded-xl shadow-md bg-white">
