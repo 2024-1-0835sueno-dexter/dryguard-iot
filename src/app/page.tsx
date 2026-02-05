@@ -5,50 +5,51 @@ import HumidityCard from "@/components/HumidityCard";
 import TemperatureCard from "@/components/TemperatureCard";
 import QuickActions from "@/components/QuickActions";
 import StatusIndicator from "@/components/StatusIndicator";
+import NotificationsPanel from "@/components/NotificationsPanel";
+import SystemLogs from "@/components/SystemLogs";
 
-export default function Home() {
-  const [humidity, setHumidity] = useState(45);
-  const [temperature, setTemperature] = useState(25);
+export default function Dashboard() {
   const [coverDeployed, setCoverDeployed] = useState(false);
 
-  const handleDeploy = () => {
-    setCoverDeployed(true);
-    // Here you would send command to IoT device
-    console.log("Deploying cover...");
-  };
-
-  const handleRetract = () => {
-    setCoverDeployed(false);
-    // Here you would send command to IoT device
-    console.log("Retracting cover...");
-  };
-
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-8 px-4">
-      <main className="max-w-6xl mx-auto">
-        <div className="bg-white rounded-xl shadow-lg p-8 mb-8">
-          <h1 className="text-4xl font-bold text-gray-800 mb-2">
-            🌧️ DryGuard IoT Dashboard
-          </h1>
-          <p className="text-gray-600">
-            Real-time monitoring and control system for your drying protection
-          </p>
-        </div>
+    <main className="min-h-screen bg-gray-50 p-8 pb-20">
+      <h1 className="text-3xl font-bold text-gray-800 mb-6">
+        🌧️ DryGuard IoT Dashboard
+      </h1>
+      <p className="text-gray-600 mb-8">
+        Real-time monitoring and control system for your drying protection
+      </p>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-          <HumidityCard humidity={humidity} />
-          <TemperatureCard temperature={temperature} />
-        </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <HumidityCard humidity={45} />
+        <TemperatureCard temperature={25} />
+      </div>
 
-        <div className="bg-white rounded-xl shadow-lg p-8">
-          <QuickActions
-            onDeploy={handleDeploy}
-            onRetract={handleRetract}
-            coverDeployed={coverDeployed}
-          />
-          <StatusIndicator coverDeployed={coverDeployed} />
-        </div>
-      </main>
-    </div>
+      <QuickActions
+        onDeploy={() => setCoverDeployed(true)}
+        onRetract={() => setCoverDeployed(false)}
+      />
+      <StatusIndicator deployed={coverDeployed} />
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
+        <NotificationsPanel />
+        <SystemLogs />
+      </div>
+
+      <nav className="fixed bottom-0 left-0 w-full bg-white shadow-md flex justify-around py-3">
+        <a href="/" className="flex flex-col items-center text-gray-700">
+          🏠 <span className="text-xs">Dashboard</span>
+        </a>
+        <a
+          href="/notifications"
+          className="flex flex-col items-center text-gray-700"
+        >
+          ⚠️ <span className="text-xs">Notifications</span>
+        </a>
+        <a href="/settings" className="flex flex-col items-center text-gray-700">
+          ⚙️ <span className="text-xs">Settings</span>
+        </a>
+      </nav>
+    </main>
   );
 }
