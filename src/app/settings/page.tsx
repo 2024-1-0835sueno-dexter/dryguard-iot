@@ -4,6 +4,14 @@ import SystemLogs from "@/components/SystemLogs";
 import QuickActions from "@/components/QuickActions";
 import BottomNav from "@/components/BottomNav";
 
+const postAction = async (endpoint: string) => {
+  try {
+    await fetch(endpoint, { method: "POST" });
+  } catch {
+    // ignore action errors for now
+  }
+};
+
 export default function SettingsPage() {
   return (
     <main className="min-h-screen bg-gray-50 p-8 pb-20">
@@ -15,10 +23,11 @@ export default function SettingsPage() {
       <div className="p-6 rounded-xl shadow-md bg-white mb-8">
         <h2 className="text-xl font-bold text-gray-800 mb-4">Manual Controls</h2>
         <QuickActions
-          onDeploy={() => alert("Cover Deployed")}
-          onRetract={() => alert("Cover Retracted")}
+          onDeploy={() => postAction("/api/deploy-cover")}
+          onRetract={() => postAction("/api/retract-cover")}
           showReset={false}
           variant="inline"
+          confirmActions
         />
       </div>
 
