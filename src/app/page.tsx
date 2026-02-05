@@ -111,7 +111,13 @@ export default function AdminDashboard() {
     wsAction: "deploy" | "retract" | "reset",
   ) => {
     try {
-      await fetch(`${apiBase}${endpoint}`, { method: "POST" });
+      const response = await fetch(`${apiBase}${endpoint}`, { method: "POST" });
+      if (response.ok) {
+        const payload = (await response.json()) as { state?: SystemState };
+        if (payload.state) {
+          setSystem(payload.state);
+        }
+      }
       await fetchSystem();
       await fetchNotifications();
       await fetchActivity();

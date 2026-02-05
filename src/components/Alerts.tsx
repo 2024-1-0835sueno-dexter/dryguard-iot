@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 interface AlertsProps {
   alerts?: string[];
 }
@@ -18,9 +20,12 @@ export default function Alerts({
           <li key={i} className="text-gray-700">⚠️ {a}</li>
         ))}
       </ul>
-      <button className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg shadow hover:bg-blue-700">
+      <Link
+        href="/notifications"
+        className="mt-4 inline-block px-4 py-2 bg-blue-600 text-white rounded-lg shadow hover:bg-blue-700"
+      >
         View All
-      </button>
+      </Link>
     </div>
   );
 }
