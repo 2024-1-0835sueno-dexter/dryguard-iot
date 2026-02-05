@@ -17,6 +17,8 @@ export default function SettingsPage() {
         <QuickActions
           onDeploy={() => alert("Cover Deployed")}
           onRetract={() => alert("Cover Retracted")}
+          showReset={false}
+          variant="inline"
         />
       </div>
 

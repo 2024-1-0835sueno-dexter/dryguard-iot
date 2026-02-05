@@ -1,0 +1,21 @@
+export default function Alerts() {
+  const alerts = [
+    "Rain detected — 2:15 PM",
+    "At risk — 2:30 PM",
+    "Drying — 4:30 PM",
+  ];
+
+  return (
+    <div className="p-6 rounded-xl shadow-md bg-white">
+      <h2 className="text-xl font-bold text-gray-800 mb-4">Alerts</h2>
+      <ul className="space-y-2">
+        {alerts.map((a, i) => (
+          <li key={i} className="text-gray-700">⚠️ {a}</li>
+        ))}
+      </ul>
+      <button className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg shadow hover:bg-blue-700">
+        View All
+      </button>
+    </div>
+  );
+}

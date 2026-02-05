@@ -1,11 +1,20 @@
 interface QuickActionsProps {
-  onDeploy: () => void;
-  onRetract: () => void;
+  onDeploy?: () => void;
+  onRetract?: () => void;
+  onReset?: () => void;
+  showReset?: boolean;
+  variant?: "card" | "inline";
 }
 
-export default function QuickActions({ onDeploy, onRetract }: QuickActionsProps) {
-  return (
-    <div className="flex gap-4 mt-6">
+export default function QuickActions({
+  onDeploy,
+  onRetract,
+  onReset,
+  showReset = true,
+  variant = "card",
+}: QuickActionsProps) {
+  const content = (
+    <div className="flex gap-4">
       <button
         onClick={onDeploy}
         className="px-4 py-2 bg-green-600 text-white rounded-lg shadow hover:bg-green-700"
@@ -18,6 +27,25 @@ export default function QuickActions({ onDeploy, onRetract }: QuickActionsProps)
       >
         Retract Cover
       </button>
+      {showReset && (
+        <button
+          onClick={onReset}
+          className="px-4 py-2 bg-gray-600 text-white rounded-lg shadow hover:bg-gray-700"
+        >
+          Reset Device
+        </button>
+      )}
+    </div>
+  );
+
+  if (variant === "inline") {
+    return <div className="mt-4">{content}</div>;
+  }
+
+  return (
+    <div className="p-6 rounded-xl shadow-md bg-white">
+      <h2 className="text-xl font-bold text-gray-800 mb-4">Quick Actions</h2>
+      {content}
     </div>
   );
 }
