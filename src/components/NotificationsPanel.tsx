@@ -16,11 +16,11 @@ export default function NotificationsPanel({
 }: NotificationsPanelProps) {
 
   return (
-    <div className="p-6 rounded-xl shadow-md bg-white dark:bg-slate-900">
-      <h2 className="text-xl font-bold text-slate-800 dark:text-slate-100 mb-4">Notifications</h2>
+    <div className="dg-card">
+      <h2 className="dg-card-title">Notifications</h2>
       <ul className="space-y-2">
         {logs.map((log, idx) => (
-          <li key={idx} className="flex items-center gap-2 text-slate-700 dark:text-slate-300">
+          <li key={idx} className="flex items-center gap-2 text-sm">
             <span>{log.icon}</span>
             <span>{log.text}</span>
           </li>
