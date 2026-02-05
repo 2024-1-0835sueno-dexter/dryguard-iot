@@ -2,6 +2,7 @@
 
 import SystemLogs from "@/components/SystemLogs";
 import QuickActions from "@/components/QuickActions";
+import BottomNav from "@/components/BottomNav";
 
 export default function SettingsPage() {
   return (
@@ -21,20 +22,7 @@ export default function SettingsPage() {
 
       <SystemLogs />
 
-      <nav className="fixed bottom-0 left-0 w-full bg-white shadow-md flex justify-around py-3">
-        <a href="/" className="flex flex-col items-center text-gray-700">
-          🏠 <span className="text-xs">Dashboard</span>
-        </a>
-        <a
-          href="/notifications"
-          className="flex flex-col items-center text-gray-700"
-        >
-          ⚠️ <span className="text-xs">Notifications</span>
-        </a>
-        <a href="/settings" className="flex flex-col items-center text-gray-700">
-          ⚙️ <span className="text-xs">Settings</span>
-        </a>
-      </nav>
+      <BottomNav />
     </main>
   );
 }

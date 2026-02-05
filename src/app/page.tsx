@@ -7,6 +7,7 @@ import QuickActions from "@/components/QuickActions";
 import StatusIndicator from "@/components/StatusIndicator";
 import NotificationsPanel from "@/components/NotificationsPanel";
 import SystemLogs from "@/components/SystemLogs";
+import BottomNav from "@/components/BottomNav";
 
 export default function Dashboard() {
   const [coverDeployed, setCoverDeployed] = useState(false);
@@ -36,20 +37,7 @@ export default function Dashboard() {
         <SystemLogs />
       </div>
 
-      <nav className="fixed bottom-0 left-0 w-full bg-white shadow-md flex justify-around py-3">
-        <a href="/" className="flex flex-col items-center text-gray-700">
-          🏠 <span className="text-xs">Dashboard</span>
-        </a>
-        <a
-          href="/notifications"
-          className="flex flex-col items-center text-gray-700"
-        >
-          ⚠️ <span className="text-xs">Notifications</span>
-        </a>
-        <a href="/settings" className="flex flex-col items-center text-gray-700">
-          ⚙️ <span className="text-xs">Settings</span>
-        </a>
-      </nav>
+      <BottomNav />
     </main>
   );
 }
