@@ -9,6 +9,7 @@ import Alerts from "@/components/Alerts";
 import QuickActions from "@/components/QuickActions";
 import RecentActivity from "@/components/RecentActivity";
 import ThemeToggle from "@/components/ThemeToggle";
+import Toast from "@/components/Toast";
 
 type SystemState = {
   humidity: number;
@@ -21,6 +22,11 @@ type SystemState = {
 type NotificationItem = {
   icon: string;
   text: string;
+};
+
+type ToastState = {
+  message: string;
+  type?: "success" | "error" | "info";
 };
 
 const formatTimestamp = (value?: string) => {
@@ -43,6 +49,7 @@ export default function AdminDashboard() {
   const [notifications, setNotifications] = useState<NotificationItem[]>([]);
   const [activity, setActivity] = useState<string[]>([]);
   const [wsConnected, setWsConnected] = useState(false);
+  const [toast, setToast] = useState<ToastState | null>(null);
   const wsRef = useRef<WebSocket | null>(null);
 
   const apiBase = useMemo(() => {
@@ -114,16 +121,22 @@ export default function AdminDashboard() {
     try {
       const response = await fetch(`${apiBase}${endpoint}`, { method: "POST" });
       if (response.ok) {
-        const payload = (await response.json()) as { state?: SystemState };
+        const payload = (await response.json()) as { state?: SystemState; message?: string };
         if (payload.state) {
           setSystem(payload.state);
         }
+        setToast({
+          message: payload.message ?? "Action completed successfully.",
+          type: "success",
+        });
+      } else {
+        setToast({ message: "Action failed. Please try again.", type: "error" });
       }
       await fetchSystem();
       await fetchNotifications();
       await fetchActivity();
     } catch {
-      // ignore action errors for now
+      setToast({ message: "Action failed. Please try again.", type: "error" });
     }
     sendWsAction(wsAction);
   };
@@ -203,6 +216,13 @@ export default function AdminDashboard() {
         />
         <RecentActivity activity={activity.length ? activity : undefined} />
       </div>
+      {toast && (
+        <Toast
+          message={toast.message}
+          type={toast.type}
+          onClose={() => setToast(null)}
+        />
+      )}
     </main>
   );
 }
