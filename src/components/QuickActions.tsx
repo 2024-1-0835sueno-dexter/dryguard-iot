@@ -98,8 +98,8 @@ export default function QuickActions({
   }
 
   return (
-    <div className="p-6 rounded-xl shadow-md bg-white">
-      <h2 className="text-xl font-bold text-gray-800 mb-4">Quick Actions</h2>
+    <div className="p-6 rounded-xl shadow-md bg-white dark:bg-slate-900">
+      <h2 className="text-xl font-bold text-slate-800 dark:text-slate-100 mb-4">Quick Actions</h2>
       {content}
       <ConfirmModal
         open={confirmActions && pendingAction !== null}

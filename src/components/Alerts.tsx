@@ -13,11 +13,11 @@ export default function Alerts({
 }: AlertsProps) {
 
   return (
-    <div className="p-6 rounded-xl shadow-md bg-white">
-      <h2 className="text-xl font-bold text-gray-800 mb-4">Alerts</h2>
+    <div className="p-6 rounded-xl shadow-md bg-white dark:bg-slate-900">
+      <h2 className="text-xl font-bold text-slate-800 dark:text-slate-100 mb-4">Alerts</h2>
       <ul className="space-y-2">
         {alerts.map((a, i) => (
-          <li key={i} className="text-gray-700">⚠️ {a}</li>
+          <li key={i} className="text-slate-700 dark:text-slate-300">⚠️ {a}</li>
         ))}
       </ul>
       <Link

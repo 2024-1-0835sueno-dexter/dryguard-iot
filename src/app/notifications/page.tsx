@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import NotificationsPanel from "@/components/NotificationsPanel";
 import BottomNav from "@/components/BottomNav";
+import ThemeToggle from "@/components/ThemeToggle";
 
 type NotificationItem = {
   icon: string;
@@ -31,8 +32,11 @@ export default function NotificationsPage() {
   }, [apiBase]);
 
   return (
-    <main className="min-h-screen bg-gray-50 p-8 pb-20">
-      <h1 className="text-3xl font-bold text-gray-800 mb-6">⚠️ Notifications</h1>
+    <main className="min-h-screen bg-slate-50 p-8 pb-20 text-slate-900 dark:bg-slate-950 dark:text-slate-100">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between mb-6">
+        <h1 className="text-3xl font-bold">⚠️ Notifications</h1>
+        <ThemeToggle />
+      </div>
       <NotificationsPanel logs={logs.length ? logs : undefined} />
 
       <BottomNav />

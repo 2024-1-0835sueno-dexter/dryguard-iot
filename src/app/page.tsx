@@ -8,6 +8,7 @@ import DeviceStatus from "@/components/DeviceStatus";
 import Alerts from "@/components/Alerts";
 import QuickActions from "@/components/QuickActions";
 import RecentActivity from "@/components/RecentActivity";
+import ThemeToggle from "@/components/ThemeToggle";
 
 type SystemState = {
   humidity: number;
@@ -162,12 +163,17 @@ export default function AdminDashboard() {
   }, []);
 
   return (
-    <main className="min-h-screen bg-gray-50 p-8">
-      <h1 className="text-3xl font-bold text-gray-800 mb-6">🛡️ DryGuard Admin</h1>
-      <p className="text-gray-700 mb-8">
+    <main className="min-h-screen bg-slate-50 p-8 text-slate-900 dark:bg-slate-950 dark:text-slate-100">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between mb-6">
+        <div>
+          <h1 className="text-3xl font-bold">🛡️ DryGuard Admin</h1>
+          <p className="text-slate-700 dark:text-slate-300">
         Device Configuration and Monitoring Dashboard
-      </p>
-      <p className="text-sm text-gray-600 mb-6">
+          </p>
+        </div>
+        <ThemeToggle />
+      </div>
+      <p className="text-sm text-slate-600 dark:text-slate-400 mb-6">
         Live updates: {wsConnected ? "WebSocket connected" : "Polling API"}
       </p>
 
