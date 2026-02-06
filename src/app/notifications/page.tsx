@@ -5,8 +5,6 @@ import NotificationsPanel from "@/components/NotificationsPanel";
 import BottomNav from "@/components/BottomNav";
 import ThemeToggle from "@/components/ThemeToggle";
 import { resolveApiBase } from "@/lib/apiBase";
-import { fetchWithAuth } from "@/lib/auth";
-import useAdminAuth from "@/lib/useAdminAuth";
 
 type NotificationItem = {
   icon: string;
@@ -16,15 +14,11 @@ type NotificationItem = {
 export default function NotificationsPage() {
   const [logs, setLogs] = useState<NotificationItem[]>([]);
   const apiBase = useMemo(() => resolveApiBase(), []);
-  const { loading } = useAdminAuth(apiBase);
 
   useEffect(() => {
-    if (loading) {
-      return;
-    }
     const fetchLogs = async () => {
       try {
-        const response = await fetchWithAuth(`${apiBase}/api/notifications`, { cache: "no-store" });
+        const response = await fetch(`${apiBase}/api/notifications`, { cache: "no-store" });
         if (!response.ok) {
           return;
         }
@@ -36,7 +30,7 @@ export default function NotificationsPage() {
     };
 
     fetchLogs();
-  }, [apiBase, loading]);
+  }, [apiBase]);
 
   return (
     <main className="min-h-screen bg-slate-50 p-8 pb-20 text-slate-900 dark:bg-slate-950 dark:text-slate-100">

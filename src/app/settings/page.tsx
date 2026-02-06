@@ -7,12 +7,10 @@ import BottomNav from "@/components/BottomNav";
 import ThemeToggle from "@/components/ThemeToggle";
 import Toast from "@/components/Toast";
 import { resolveApiBase } from "@/lib/apiBase";
-import { fetchWithAuth } from "@/lib/auth";
-import useAdminAuth from "@/lib/useAdminAuth";
 
 const postAction = async (endpoint: string, apiBase: string) => {
   try {
-    const response = await fetchWithAuth(`${apiBase}${endpoint}`, { method: "POST" });
+    const response = await fetch(`${apiBase}${endpoint}`, { method: "POST" });
     if (!response.ok) {
       return null;
     }
@@ -25,7 +23,6 @@ const postAction = async (endpoint: string, apiBase: string) => {
 
 export default function SettingsPage() {
   const apiBase = useMemo(() => resolveApiBase(), []);
-  const { loading } = useAdminAuth(apiBase);
   const [toast, setToast] = useState<{ message: string; type?: "success" | "error" } | null>(
     null,
   );

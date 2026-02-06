@@ -18,11 +18,3 @@ services:
         sync: false
       - key: MONGODB_DB
         value: dryguard
-      - key: ADMIN_USERNAME
-        sync: false
-      - key: ADMIN_PASSWORD
-        sync: false
-      - key: ADMIN_NAME
-        sync: false
-      - key: JWT_SECRET
-        sync: false

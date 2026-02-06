@@ -14,8 +14,6 @@ import { resolveApiBase, resolveWsUrl } from "@/lib/apiBase";
 import NavBar from "@/components/NavBar";
 import Breadcrumbs from "@/components/Breadcrumbs";
 import NotificationsCard from "@/components/NotificationsCard";
-import { clearToken, fetchWithAuth } from "@/lib/auth";
-import useAdminAuth from "@/lib/useAdminAuth";
 
 type SystemState = {
   humidity: number;
@@ -54,11 +52,9 @@ export default function AdminDashboard() {
   const apiBase = useMemo(() => resolveApiBase(), []);
   const wsUrl = useMemo(() => resolveWsUrl(apiBase), [apiBase]);
 
-  const { adminName, loading } = useAdminAuth(apiBase);
-
   const fetchSystem = async () => {
     try {
-      const response = await fetchWithAuth(`${apiBase}/api/system`, { cache: "no-store" });
+      const response = await fetch(`${apiBase}/api/system`, { cache: "no-store" });
       if (!response.ok) {
         return;
       }
@@ -71,7 +67,7 @@ export default function AdminDashboard() {
 
   const fetchNotifications = async () => {
     try {
-      const response = await fetchWithAuth(`${apiBase}/api/notifications`, { cache: "no-store" });
+      const response = await fetch(`${apiBase}/api/notifications`, { cache: "no-store" });
       if (!response.ok) {
         return;
       }
@@ -91,7 +87,7 @@ export default function AdminDashboard() {
 
   const fetchActivity = async () => {
     try {
-      const response = await fetchWithAuth(`${apiBase}/api/activity`, { cache: "no-store" });
+      const response = await fetch(`${apiBase}/api/activity`, { cache: "no-store" });
       if (!response.ok) {
         return;
       }
@@ -119,7 +115,7 @@ export default function AdminDashboard() {
     wsAction: "deploy" | "retract" | "reset",
   ) => {
     try {
-      const response = await fetchWithAuth(`${apiBase}${endpoint}`, { method: "POST" });
+      const response = await fetch(`${apiBase}${endpoint}`, { method: "POST" });
       if (response.ok) {
         const payload = (await response.json()) as { state?: SystemState; message?: string };
         if (payload.state) {
@@ -142,15 +138,12 @@ export default function AdminDashboard() {
   };
 
   useEffect(() => {
-    if (loading) {
-      return;
-    }
     refreshAll();
     const interval = setInterval(() => {
       refreshAll();
     }, 10000);
     return () => clearInterval(interval);
-  }, [loading]);
+  }, []);
 
   const normalizedQuery = searchQuery.trim().toLowerCase();
   const matchesQuery = (value: string) =>
@@ -179,13 +172,7 @@ export default function AdminDashboard() {
       return undefined;
     }
 
-    const token = typeof window !== "undefined" ? window.localStorage.getItem("dryguard-token") : null;
-    if (!token) {
-      setWsConnected(false);
-      return undefined;
-    }
-
-    const ws = new WebSocket(`${wsUrl}?token=${encodeURIComponent(token)}`);
+    const ws = new WebSocket(wsUrl);
     wsRef.current = ws;
 
     ws.onopen = () => setWsConnected(true);
@@ -204,17 +191,11 @@ export default function AdminDashboard() {
       ws.close();
       wsRef.current = null;
     };
-  }, [wsUrl, loading]);
+  }, [wsUrl]);
 
   return (
     <main className="min-h-screen bg-[#f2f2f2] p-6 text-slate-900">
-      {loading ? (
-        <div className="rounded-xl border-2 border-slate-900 bg-white p-8 text-center">
-          <p className="text-sm dg-muted">Checking admin session...</p>
-        </div>
-      ) : (
-        <>
-          <NavBar active="settings" />
+      <NavBar active="settings" />
 
       <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
         <Breadcrumbs items={["Dashboard", "Settings", "Device Configuration"]} />
@@ -223,15 +204,12 @@ export default function AdminDashboard() {
             className="rounded-full border border-slate-300 bg-white px-4 py-1 text-sm"
             type="button"
           >
-            👤 {adminName ?? "Admin"}
+            👤 Admin
           </button>
           <button
             className="rounded-full border border-slate-300 bg-white px-3 py-1 text-sm text-red-600"
             type="button"
-            onClick={() => {
-              clearToken();
-              window.location.href = "/login";
-            }}
+            onClick={() => setToast({ message: "Logged out (demo)", type: "info" })}
           >
             Logout
           </button>
@@ -352,8 +330,6 @@ export default function AdminDashboard() {
           type={toast.type}
           onClose={() => setToast(null)}
         />
-      )}
-        </>
       )}
     </main>
   );
