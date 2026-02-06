@@ -3,11 +3,28 @@ interface HumidityTrendsProps {
   lastUpdated?: string;
 }
 
+const formatTime = (value?: string) => {
+  const date = value ? new Date(value) : new Date();
+  return date.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" });
+};
+
+const formatDate = (value?: string) => {
+  const date = value ? new Date(value) : new Date();
+  return date.toLocaleDateString("en-US", {
+    weekday: "short",
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  });
+};
+
 export default function HumidityTrends({ humidity, lastUpdated }: HumidityTrendsProps) {
   return (
     <div className="dg-card">
       <h2 className="dg-card-title">Humidity Trends</h2>
-      <p className="text-sm dg-muted">🕒 {lastUpdated ?? "08:38 AM"} | 📅 Wed, Jan 28, 2026</p>
+      <p className="text-sm dg-muted">
+        🕒 {formatTime(lastUpdated)} | 📅 {formatDate(lastUpdated)}
+      </p>
       {humidity !== undefined && (
         <p className="mt-2 text-sm dg-muted">Current humidity: {humidity}%</p>
       )}

@@ -5,6 +5,8 @@ const { WebSocketServer, WebSocket } = require("ws");
 const mqtt = require("mqtt");
 const Datastore = require("nedb-promises");
 const { MongoClient } = require("mongodb");
+const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
 
 const PORT = process.env.PORT || 4000;
 const MQTT_URL = process.env.MQTT_URL || "mqtt://broker.hivemq.com";
@@ -12,9 +14,18 @@ const MQTT_SENSORS_TOPIC = process.env.MQTT_SENSORS_TOPIC || "dryguard/sensors";
 const MQTT_ACTIONS_TOPIC = process.env.MQTT_ACTIONS_TOPIC || "dryguard/actions";
 const MONGODB_URI = process.env.MONGODB_URI;
 const MONGODB_DB = process.env.MONGODB_DB || "dryguard";
+const JWT_SECRET = process.env.JWT_SECRET || "dryguard-dev-secret";
+const ADMIN_USERNAME = process.env.ADMIN_USERNAME;
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
+const ADMIN_NAME = process.env.ADMIN_NAME;
 
 const app = express();
-app.use(cors());
+app.use(
+  cors({
+    origin: true,
+    allowedHeaders: ["Content-Type", "Authorization"],
+  }),
+);
 app.use(express.json());
 
 app.use((err, req, res, next) => {
@@ -28,6 +39,49 @@ app.get("/health", (req, res) => {
   res.json({ status: "ok" });
 });
 
+app.post("/api/auth/login", async (req, res) => {
+  const { username, password } = req.body ?? {};
+  if (!username || !password) {
+    return res.status(400).json({ error: "Missing credentials." });
+  }
+
+  const adminCount = await storage.countAdmins();
+  if (!adminCount) {
+    return res.status(503).json({ error: "Admin account not configured." });
+  }
+
+  const admin = await storage.findAdminByUsername(username);
+  if (!admin) {
+    return res.status(401).json({ error: "Invalid credentials." });
+  }
+
+  const match = await bcrypt.compare(password, admin.passwordHash);
+  if (!match) {
+    return res.status(401).json({ error: "Invalid credentials." });
+  }
+
+  const token = signToken(admin);
+  return res.json({
+    token,
+    admin: { fullName: admin.fullName, username: admin.username },
+  });
+});
+
+app.get("/api/auth/me", authMiddleware, (req, res) => {
+  res.json({ fullName: req.user.fullName, username: req.user.username });
+});
+
+app.post("/api/auth/logout", (req, res) => {
+  res.json({ message: "Logged out" });
+});
+
+app.use("/api", (req, res, next) => {
+  if (req.path.startsWith("/auth")) {
+    return next();
+  }
+  return authMiddleware(req, res, next);
+});
+
 const server = http.createServer(app);
 const wss = new WebSocketServer({ server });
 
@@ -36,6 +90,9 @@ let storage = {
   insertActivity: async () => {},
   getNotifications: async () => [],
   getActivity: async () => [],
+  findAdminByUsername: async () => null,
+  upsertAdmin: async () => {},
+  countAdmins: async () => 0,
 };
 
 const initStorage = async () => {
@@ -46,8 +103,10 @@ const initStorage = async () => {
       const db = client.db(MONGODB_DB);
       const notifications = db.collection("notifications");
       const activity = db.collection("activity");
+      const admins = db.collection("admins");
       await notifications.createIndex({ createdAt: -1 });
       await activity.createIndex({ createdAt: -1 });
+      await admins.createIndex({ username: 1 }, { unique: true });
 
       storage = {
         insertNotification: async (icon, text) => {
@@ -72,6 +131,17 @@ const initStorage = async () => {
             .toArray();
           return rows.map((row) => row.text);
         },
+        findAdminByUsername: async (username) => {
+          return admins.findOne({ username });
+        },
+        upsertAdmin: async (username, fullName, passwordHash) => {
+          await admins.updateOne(
+            { username },
+            { $set: { username, fullName, passwordHash } },
+            { upsert: true },
+          );
+        },
+        countAdmins: async () => admins.countDocuments(),
       };
 
       console.log("MongoDB storage connected.");
@@ -90,6 +160,11 @@ const initStorage = async () => {
     filename: "server/activity.db",
     autoload: true,
   });
+  const adminsDb = Datastore.create({
+    filename: "server/admins.db",
+    autoload: true,
+  });
+  await adminsDb.ensureIndex({ fieldName: "username", unique: true });
 
   storage = {
     insertNotification: async (icon, text) => {
@@ -109,9 +184,53 @@ const initStorage = async () => {
       const rows = await activityDb.find({}).sort({ createdAt: -1 }).limit(limit);
       return rows.map((row) => row.text);
     },
+    findAdminByUsername: async (username) => {
+      return adminsDb.findOne({ username });
+    },
+    upsertAdmin: async (username, fullName, passwordHash) => {
+      await adminsDb.update(
+        { username },
+        { $set: { username, fullName, passwordHash } },
+        { upsert: true },
+      );
+    },
+    countAdmins: async () => adminsDb.count({}),
   };
 
   console.log("File storage initialized.");
+};
+
+const ensureAdmin = async () => {
+  if (!ADMIN_USERNAME || !ADMIN_PASSWORD || !ADMIN_NAME) {
+    console.warn("ADMIN_USERNAME/ADMIN_PASSWORD/ADMIN_NAME not set. Login disabled.");
+    return;
+  }
+
+  const hash = await bcrypt.hash(ADMIN_PASSWORD, 10);
+  await storage.upsertAdmin(ADMIN_USERNAME, ADMIN_NAME, hash);
+  console.log("Admin account ready.");
+};
+
+const signToken = (admin) =>
+  jwt.sign(
+    { username: admin.username, fullName: admin.fullName },
+    JWT_SECRET,
+    { expiresIn: "7d" },
+  );
+
+const authMiddleware = (req, res, next) => {
+  const header = req.headers.authorization || "";
+  const token = header.startsWith("Bearer ") ? header.slice(7) : null;
+  if (!token) {
+    return res.status(401).json({ error: "Unauthorized" });
+  }
+  try {
+    const payload = jwt.verify(token, JWT_SECRET);
+    req.user = payload;
+    return next();
+  } catch {
+    return res.status(401).json({ error: "Unauthorized" });
+  }
 };
 
 let systemState = {
@@ -207,7 +326,20 @@ app.post("/api/reset-device", async (req, res) => {
   res.json({ message: "Device reset complete", state: systemState });
 });
 
-wss.on("connection", (socket) => {
+wss.on("connection", (socket, request) => {
+  const url = new URL(request.url, "http://localhost");
+  const token = url.searchParams.get("token");
+  if (!token) {
+    socket.close(1008, "Unauthorized");
+    return;
+  }
+  try {
+    jwt.verify(token, JWT_SECRET);
+  } catch {
+    socket.close(1008, "Unauthorized");
+    return;
+  }
+
   socket.send(JSON.stringify(systemState));
   socket.on("message", (data) => {
     try {
@@ -272,7 +404,8 @@ mqttClient.on("message", (topic, message) => {
   }
 });
 
-initStorage().then(() => {
+initStorage().then(async () => {
+  await ensureAdmin();
   server.listen(PORT, () => {
     console.log(`DryGuard API running on http://localhost:${PORT}`);
   });

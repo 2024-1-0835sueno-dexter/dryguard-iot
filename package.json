@@ -12,12 +12,14 @@
     "dev:all": "concurrently -k \"npm run server:dev\" \"npm run dev\""
   },
   "dependencies": {
+    "bcryptjs": "^3.0.3",
     "concurrently": "^9.1.0",
     "cors": "^2.8.5",
     "express": "^4.19.2",
+    "jsonwebtoken": "^9.0.3",
     "mongodb": "^6.6.2",
-    "nedb-promises": "^6.2.3",
     "mqtt": "^5.10.4",
+    "nedb-promises": "^6.2.3",
     "next": "16.1.6",
     "react": "19.2.3",
     "react-dom": "19.2.3",

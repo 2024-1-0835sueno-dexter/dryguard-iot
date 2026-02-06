@@ -1,7 +1,10 @@
+import Link from "next/link";
+
 interface DeviceStatusProps {
   laundryOnline?: boolean;
   outdoorOnline?: boolean;
   alerts?: { label: string; time: string }[];
+  onRefresh?: () => void;
 }
 
 const defaultAlerts = [
@@ -14,6 +17,7 @@ export default function DeviceStatus({
   laundryOnline = true,
   outdoorOnline = false,
   alerts = defaultAlerts,
+  onRefresh,
 }: DeviceStatusProps) {
   return (
     <div className="dg-card">
@@ -23,25 +27,26 @@ export default function DeviceStatus({
           type="button"
           className="rounded-full border border-slate-300 bg-white px-3 py-1 text-sm"
           aria-label="Refresh status"
+          onClick={onRefresh}
         >
           🔄
         </button>
       </div>
       <div className="mt-4 grid gap-3 text-sm sm:grid-cols-2">
         <div className="flex items-center gap-2">
-          <span className="h-3 w-3 rounded-full bg-emerald-500" />
+          <span className="h-3 w-3 rounded-full bg-emerald-700" />
           <span>Online</span>
         </div>
         <div className={`flex items-center gap-2 ${laundryOnline ? "" : "text-slate-600"}`}>
-          <span className={`h-3 w-3 rounded-full ${laundryOnline ? "bg-emerald-500" : "bg-red-500"}`} />
+          <span className={`h-3 w-3 rounded-full ${laundryOnline ? "bg-emerald-700" : "bg-red-700"}`} />
           <span>Laundry Sensor</span>
         </div>
         <div className="flex items-center gap-2">
-          <span className="h-3 w-3 rounded-full bg-red-500" />
+          <span className="h-3 w-3 rounded-full bg-red-700" />
           <span>Offline</span>
         </div>
         <div className={`flex items-center gap-2 ${outdoorOnline ? "" : "text-slate-600"}`}>
-          <span className={`h-3 w-3 rounded-full ${outdoorOnline ? "bg-emerald-500" : "bg-red-500"}`} />
+          <span className={`h-3 w-3 rounded-full ${outdoorOnline ? "bg-emerald-700" : "bg-red-700"}`} />
           <span>Outdoor Sensor</span>
         </div>
       </div>
@@ -58,9 +63,12 @@ export default function DeviceStatus({
             </div>
           ))}
         </div>
-        <button className="mt-4 rounded-full border border-slate-300 bg-white px-4 py-1 text-sm">
+        <Link
+          href="/notifications"
+          className="mt-4 inline-flex rounded-full border border-slate-300 bg-white px-4 py-1 text-sm"
+        >
           View All
-        </button>
+        </Link>
       </div>
     </div>
   );
