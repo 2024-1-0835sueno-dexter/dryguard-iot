@@ -1,7 +1,7 @@
 const express = require("express");
 const cors = require("cors");
 const http = require("http");
-const { WebSocketServer } = require("ws");
+const { WebSocketServer, WebSocket } = require("ws");
 const mqtt = require("mqtt");
 const Datastore = require("nedb-promises");
 const { MongoClient } = require("mongodb");
@@ -16,6 +16,17 @@ const MONGODB_DB = process.env.MONGODB_DB || "dryguard";
 const app = express();
 app.use(cors());
 app.use(express.json());
+
+app.use((err, req, res, next) => {
+  if (err instanceof SyntaxError && "body" in err) {
+    return res.status(400).json({ error: "Invalid JSON payload." });
+  }
+  return next(err);
+});
+
+app.get("/health", (req, res) => {
+  res.json({ status: "ok" });
+});
 
 const server = http.createServer(app);
 const wss = new WebSocketServer({ server });
@@ -119,7 +130,7 @@ const touchSystem = () => {
 const broadcast = () => {
   const payload = JSON.stringify(systemState);
   wss.clients.forEach((client) => {
-    if (client.readyState === client.OPEN) {
+    if (client.readyState === WebSocket.OPEN) {
       client.send(payload);
     }
   });

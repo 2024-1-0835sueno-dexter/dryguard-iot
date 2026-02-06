@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import ConfirmModal from "@/components/ConfirmModal";
 
 interface QuickActionsProps {
   onDeploy?: () => void;
@@ -42,23 +41,23 @@ export default function QuickActions({
     setPendingAction(null);
   };
   const content = (
-    <div className="flex gap-4">
+    <div className="flex flex-wrap items-center gap-4">
       <button
         onClick={() => (confirmActions ? setPendingAction("deploy") : onDeploy?.())}
-        className="px-4 py-2 bg-green-600 text-white rounded-lg shadow hover:bg-green-700"
+        className="dg-pill bg-emerald-600 text-white"
       >
         Deploy Cover
       </button>
       <button
         onClick={() => (confirmActions ? setPendingAction("retract") : onRetract?.())}
-        className="px-4 py-2 bg-blue-600 text-white rounded-lg shadow hover:bg-blue-700"
+        className="dg-pill bg-blue-600 text-white"
       >
         Retract Cover
       </button>
       {showReset && (
         <button
           onClick={() => (confirmActions ? setPendingAction("reset") : onReset?.())}
-          className="px-4 py-2 bg-gray-600 text-white rounded-lg shadow hover:bg-gray-700"
+          className="dg-pill bg-slate-600 text-white"
         >
           Reset Device
         </button>
@@ -66,33 +65,38 @@ export default function QuickActions({
     </div>
   );
 
-  const modalTitle =
+  const inlineConfirm = confirmActions && pendingAction !== null;
+  const actionLabel =
     pendingAction === "deploy"
       ? "Deploy cover?"
       : pendingAction === "retract"
         ? "Retract cover?"
         : "Reset device?";
 
-  const modalMessage =
-    pendingAction === "deploy"
-      ? "This will deploy the protective cover immediately."
-      : pendingAction === "retract"
-        ? "This will retract the protective cover immediately."
-        : "This will reset the device and clear temporary state.";
+  const confirmRow = inlineConfirm ? (
+    <div className="mt-3 flex flex-wrap items-center gap-3 text-sm">
+      <span className="rounded-full bg-slate-200 px-4 py-1">Are you sure?</span>
+      <button
+        onClick={() => triggerAction(pendingAction)}
+        className="dg-pill bg-emerald-600 text-white"
+      >
+        Confirm
+      </button>
+      <button
+        onClick={() => setPendingAction(null)}
+        className="dg-pill bg-red-500 text-white"
+      >
+        Cancel
+      </button>
+      <span className="dg-muted">{actionLabel}</span>
+    </div>
+  ) : null;
 
   if (variant === "inline") {
     return (
       <div className="mt-4">
         {content}
-        <ConfirmModal
-          open={confirmActions && pendingAction !== null}
-          title={modalTitle}
-          message={modalMessage}
-          confirmLabel="Confirm"
-          cancelLabel="Cancel"
-          onConfirm={() => triggerAction(pendingAction)}
-          onCancel={() => setPendingAction(null)}
-        />
+        {confirmRow}
       </div>
     );
   }
@@ -101,15 +105,7 @@ export default function QuickActions({
     <div className="dg-card">
       <h2 className="dg-card-title">Quick Actions</h2>
       {content}
-      <ConfirmModal
-        open={confirmActions && pendingAction !== null}
-        title={modalTitle}
-        message={modalMessage}
-        confirmLabel="Confirm"
-        cancelLabel="Cancel"
-        onConfirm={() => triggerAction(pendingAction)}
-        onCancel={() => setPendingAction(null)}
-      />
+      {confirmRow}
     </div>
   );
 }

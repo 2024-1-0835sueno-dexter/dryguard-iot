@@ -1,0 +1,20 @@
+services:
+  - type: web
+    name: dryguard-realtime
+    runtime: node
+    plan: free
+    region: oregon
+    buildCommand: npm install
+    startCommand: node server/server.js
+    healthCheckPath: /health
+    envVars:
+      - key: MQTT_URL
+        value: mqtt://broker.hivemq.com
+      - key: MQTT_SENSORS_TOPIC
+        value: dryguard/sensors
+      - key: MQTT_ACTIONS_TOPIC
+        value: dryguard/actions
+      - key: MONGODB_URI
+        sync: false
+      - key: MONGODB_DB
+        value: dryguard

@@ -8,8 +8,11 @@ import DeviceStatus from "@/components/DeviceStatus";
 import Alerts from "@/components/Alerts";
 import QuickActions from "@/components/QuickActions";
 import RecentActivity from "@/components/RecentActivity";
-import ThemeToggle from "@/components/ThemeToggle";
 import Toast from "@/components/Toast";
+import { resolveApiBase, resolveWsUrl } from "@/lib/apiBase";
+import NavBar from "@/components/NavBar";
+import Breadcrumbs from "@/components/Breadcrumbs";
+import NotificationsCard from "@/components/NotificationsCard";
 
 type SystemState = {
   humidity: number;
@@ -52,21 +55,8 @@ export default function AdminDashboard() {
   const [toast, setToast] = useState<ToastState | null>(null);
   const wsRef = useRef<WebSocket | null>(null);
 
-  const apiBase = useMemo(() => {
-    return process.env.NEXT_PUBLIC_API_BASE ?? "";
-  }, []);
-
-  const wsUrl = useMemo(() => {
-    if (process.env.NEXT_PUBLIC_WS_URL) {
-      return process.env.NEXT_PUBLIC_WS_URL;
-    }
-
-    if (apiBase.startsWith("http")) {
-      return apiBase.replace("https://", "wss://").replace("http://", "ws://");
-    }
-
-    return "ws://localhost:4001";
-  }, [apiBase]);
+  const apiBase = useMemo(() => resolveApiBase(), []);
+  const wsUrl = useMemo(() => resolveWsUrl(apiBase), [apiBase]);
 
   const fetchSystem = async () => {
     try {
@@ -154,6 +144,11 @@ export default function AdminDashboard() {
   }, []);
 
   useEffect(() => {
+    if (!wsUrl) {
+      setWsConnected(false);
+      return undefined;
+    }
+
     const ws = new WebSocket(wsUrl);
     wsRef.current = ws;
 
@@ -173,49 +168,83 @@ export default function AdminDashboard() {
       ws.close();
       wsRef.current = null;
     };
-  }, []);
+  }, [wsUrl]);
 
   return (
-    <main className="min-h-screen bg-slate-50 p-8 text-slate-900 dark:bg-slate-950 dark:text-slate-100">
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between mb-6">
-        <div>
-          <h1 className="text-3xl font-bold">🛡️ DryGuard Admin</h1>
-          <p className="text-slate-700 dark:text-slate-300">
-        Device Configuration and Monitoring Dashboard
-          </p>
+    <main className="min-h-screen bg-[#f2f2f2] p-6 text-slate-900">
+      <NavBar active="settings" />
+
+      <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
+        <Breadcrumbs items={["Dashboard", "Settings", "Device Configuration"]} />
+        <div className="flex flex-wrap items-center gap-3">
+          <button className="rounded-full border border-slate-300 bg-white px-4 py-1 text-sm">
+            👤 Dexter Sueno
+          </button>
+          <button className="rounded-full border border-slate-300 bg-white px-3 py-1 text-sm text-red-600">
+            Logout
+          </button>
+          <div className="relative">
+            <span className="text-xl">🔔</span>
+            <span className="absolute -right-1 -top-1 inline-flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[10px] text-white">
+              1
+            </span>
+          </div>
+          <div className="flex items-center rounded-full border border-slate-300 bg-white px-3 py-1 text-sm">
+            <span className="mr-2">🔍</span>
+            <input
+              className="w-40 bg-transparent text-sm outline-none"
+              placeholder="Search logs, alerts..."
+            />
+          </div>
+          <button className="rounded-full border border-slate-300 bg-white px-4 py-1 text-sm">
+            Filters ▾
+          </button>
         </div>
-        <ThemeToggle />
       </div>
-      <p className="text-sm text-slate-600 dark:text-slate-400 mb-6">
+
+      <p className="mt-3 text-xs dg-muted">
         Live updates: {wsConnected ? "WebSocket connected" : "Polling API"}
       </p>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <HumidityTrends
-          humidity={system?.humidity}
-          lastUpdated={formatTimestamp(system?.lastChecked)}
-        />
-        <RainEvents
-          rainDetected={system?.rainDetected}
-          lastUpdated={formatTimestamp(system?.lastChecked)}
-        />
-        <SystemHealth
-          online={system?.online ?? true}
-          lastChecked={formatTimestamp(system?.lastChecked)}
-        />
-        <DeviceStatus
-          laundryOnline={system?.online ?? true}
-          outdoorOnline={system ? !system.rainDetected : false}
-        />
-        <Alerts alerts={alerts.length ? alerts : undefined} />
-        <QuickActions
-          onDeploy={() => handleAction("/api/deploy-cover", "deploy")}
-          onRetract={() => handleAction("/api/retract-cover", "retract")}
-          onReset={() => handleAction("/api/reset-device", "reset")}
-          confirmActions
-        />
-        <RecentActivity activity={activity.length ? activity : undefined} />
+      <div className="mt-4 rounded-xl border-2 border-slate-900 bg-white">
+        <div className="grid grid-cols-1 gap-6 p-6 lg:grid-cols-[1.1fr_0.9fr] lg:gap-8">
+          <div className="space-y-6 lg:pr-6 lg:border-r-2 lg:border-slate-900">
+            <HumidityTrends
+              humidity={system?.humidity}
+              lastUpdated={formatTimestamp(system?.lastChecked)}
+            />
+            <RainEvents
+              rainDetected={system?.rainDetected}
+              lastUpdated={formatTimestamp(system?.lastChecked)}
+            />
+            <SystemHealth
+              online={system?.online ?? true}
+              lastChecked={formatTimestamp(system?.lastChecked)}
+            />
+            <NotificationsCard logs={notifications.length ? notifications : undefined} />
+          </div>
+          <div className="space-y-6">
+            <DeviceStatus
+              laundryOnline={system?.online ?? true}
+              outdoorOnline={system ? !system.rainDetected : false}
+            />
+            <Alerts alerts={alerts.length ? alerts : undefined} />
+            <QuickActions
+              onDeploy={() => handleAction("/api/deploy-cover", "deploy")}
+              onRetract={() => handleAction("/api/retract-cover", "retract")}
+              onReset={() => handleAction("/api/reset-device", "reset")}
+              confirmActions
+            />
+            <RecentActivity activity={activity.length ? activity : undefined} />
+          </div>
+        </div>
       </div>
+
+      <footer className="mt-4 flex flex-wrap items-center justify-between gap-3 text-xs text-slate-600">
+        <span>© 2026 DryGuard Systems | Version 1.2.3</span>
+        <span>Privacy Policy | Help | Contact Support</span>
+      </footer>
+
       {toast && (
         <Toast
           message={toast.message}

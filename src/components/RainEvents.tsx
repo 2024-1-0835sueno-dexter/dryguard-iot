@@ -4,23 +4,22 @@ interface RainEventsProps {
 }
 
 export default function RainEvents({ rainDetected, lastUpdated }: RainEventsProps) {
-  const rainClass = rainDetected
-    ? "text-rose-400 animate-pulse"
-    : "text-emerald-400";
-
   return (
     <div className="dg-card">
       <h2 className="dg-card-title">Rain Events</h2>
-      <p className="text-sm dg-muted">{lastUpdated ?? "08:38 AM | Wed, Jan 28, 2026"}</p>
+      <p className="text-sm dg-muted">🕒 {lastUpdated ?? "08:38 AM"} | 📅 Wed, Jan 28, 2026</p>
       {rainDetected !== undefined && (
-        <p className={`mt-2 text-sm transition-colors ${rainClass}`}>
+        <p className="mt-2 text-sm dg-muted">
           Status: {rainDetected ? "Rain detected" : "No rain detected"}
         </p>
       )}
-      <div className="flex gap-4 mt-4">
-        <span>☁️ Cloudy</span>
-        <span>🌩️ Thunderstorm</span>
-        <span>🌧️ Rain</span>
+      <div className="mt-4 flex flex-wrap items-center gap-4 text-2xl">
+        <span>🌧️</span>
+        <span>🌧️</span>
+        <span>⛈️</span>
+        <span>🌧️</span>
+        <span>🌧️</span>
+        <span>🌧️</span>
       </div>
     </div>
   );

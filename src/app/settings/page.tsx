@@ -1,11 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import SystemLogs from "@/components/SystemLogs";
 import QuickActions from "@/components/QuickActions";
 import BottomNav from "@/components/BottomNav";
 import ThemeToggle from "@/components/ThemeToggle";
 import Toast from "@/components/Toast";
+import { resolveApiBase } from "@/lib/apiBase";
 
 const postAction = async (endpoint: string, apiBase: string) => {
   try {
@@ -21,7 +22,7 @@ const postAction = async (endpoint: string, apiBase: string) => {
 };
 
 export default function SettingsPage() {
-  const apiBase = process.env.NEXT_PUBLIC_API_BASE ?? "";
+  const apiBase = useMemo(() => resolveApiBase(), []);
   const [toast, setToast] = useState<{ message: string; type?: "success" | "error" } | null>(
     null,
   );

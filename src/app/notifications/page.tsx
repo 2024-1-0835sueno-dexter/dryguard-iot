@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import NotificationsPanel from "@/components/NotificationsPanel";
 import BottomNav from "@/components/BottomNav";
 import ThemeToggle from "@/components/ThemeToggle";
+import { resolveApiBase } from "@/lib/apiBase";
 
 type NotificationItem = {
   icon: string;
@@ -12,7 +13,7 @@ type NotificationItem = {
 
 export default function NotificationsPage() {
   const [logs, setLogs] = useState<NotificationItem[]>([]);
-  const apiBase = useMemo(() => process.env.NEXT_PUBLIC_API_BASE ?? "", []);
+  const apiBase = useMemo(() => resolveApiBase(), []);
 
   useEffect(() => {
     const fetchLogs = async () => {

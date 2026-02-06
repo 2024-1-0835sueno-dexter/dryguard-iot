@@ -1,16 +1,22 @@
 @import "tailwindcss";
-@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&display=swap");
 
 @custom-variant dark (&:where(.dark, .dark *));
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #f2f2f2;
+  --foreground: #1f1f1f;
   --card-bg: #ffffff;
-  --card-fg: #0f172a;
-  --card-border: #e2e8f0;
-  --card-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
-  --muted: #64748b;
+  --card-fg: #111111;
+  --card-border: #1f1f1f;
+  --card-shadow: 0 8px 18px rgba(0, 0, 0, 0.1);
+  --muted: #5f5f5f;
+  --chrome: #d9d6d6;
+  --chrome-dark: #bdb8b8;
+  --accent-blue: #1d4ed8;
+  --accent-green: #1f8f3a;
+  --accent-red: #e11d48;
+  --accent-yellow: #f59e0b;
 }
 
 .dark {
@@ -40,16 +46,16 @@
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-family: "Manrope", system-ui, -apple-system, "Segoe UI", sans-serif;
 }
 
 @layer components {
   .dg-card {
     background: var(--card-bg);
     color: var(--card-fg);
-    border: 1px solid var(--card-border);
+    border: 2px solid var(--card-border);
     box-shadow: var(--card-shadow);
-    border-radius: 16px;
+    border-radius: 14px;
     padding: 24px;
     transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease,
       box-shadow 0.2s ease, transform 0.2s ease;
@@ -67,5 +73,38 @@ body {
 
   .dg-muted {
     color: var(--muted);
+  }
+
+  .dg-topbar {
+    background: var(--chrome);
+    border-radius: 18px;
+    border: 1px solid #bfbaba;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  }
+
+  .dg-tab {
+    background: var(--chrome-dark);
+    color: #1f1f1f;
+    border-radius: 12px;
+    padding: 10px 18px;
+    border: 1px solid #a6a1a1;
+    transition: background-color 0.2s ease, color 0.2s ease;
+  }
+
+  .dg-tab-active {
+    background: #eceaea;
+    color: var(--accent-blue);
+    font-weight: 700;
+  }
+
+  .dg-pill {
+    border-radius: 999px;
+    padding: 6px 14px;
+    font-size: 0.85rem;
+    font-weight: 600;
+  }
+
+  .dg-divider {
+    border-color: #1f1f1f;
   }
 }
